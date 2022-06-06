@@ -135,7 +135,7 @@ public class Pizza implements Serializable {
 
     @Override
     public String toString() {
-        return idtable1 + ";" + nomepizza + ";" + preco + ";" + sabor + ";" + tamanho;
+        return idtable1 + ";" + nomepizza + ";" + sabor + ";" + preco + ";" + tamanho;
     }
 
 }
