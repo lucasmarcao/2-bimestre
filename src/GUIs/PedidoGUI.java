@@ -31,7 +31,10 @@ import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JRadioButton;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
+import javax.swing.text.MaskFormatter;
 
 public class PedidoGUI extends JDialog {
 
@@ -60,7 +63,11 @@ public class PedidoGUI extends JDialog {
     JLabel lbDataPedido = new JLabel("Data do Pedido", JLabel.CENTER);
     JTextField tfDataPedido = new JTextField(30);
     JLabel lbEntregue = new JLabel("Pedido foi entregue?", JLabel.CENTER);
-    JTextField tfEntregue = new JTextField(30);
+    JPanel painel = new JPanel();
+    Short conta = 0;
+    JRadioButton sim = new JRadioButton("sim");
+    JRadioButton nao = new JRadioButton("não");
+
     JLabel lbCliente = new JLabel("Cliente", JLabel.CENTER);
     JLabel lbAcompanhamentos = new JLabel("Acompanhamentos", JLabel.CENTER);
     String acao = "";
@@ -91,6 +98,11 @@ public class PedidoGUI extends JDialog {
     JComboBox cbAcompanhamentos = new JComboBox(cbm2);
 
     public PedidoGUI() {
+        try {
+            this.tfDataPedido = new JFormattedTextField(new MaskFormatter("##/##/####"));
+        } catch (ParseException ex) {
+            System.out.println("fudeu o parse" + ex);
+        }
         dialogo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         cp = dialogo.getContentPane();
         cp.setLayout(new BorderLayout());
@@ -160,6 +172,18 @@ public class PedidoGUI extends JDialog {
         botaolistar.setBackground(Color.LIGHT_GRAY);
         tfId.setBorder(BorderFactory.createLineBorder(Color.black));
 
+        // radio 
+        painel.setLayout(new GridLayout(1, 2));
+        painel.add(sim);
+        painel.add(nao);
+
+        sim.setHorizontalAlignment((int) CENTER_ALIGNMENT);
+        nao.setHorizontalAlignment((int) CENTER_ALIGNMENT);
+        sim.setBackground(new Color(240, 190, 0));
+        nao.setBackground(new Color(240, 190, 0));
+        sim.setFont(new Font("Times New Roman", Font.BOLD, 25));
+        nao.setFont(new Font("Times New Roman", Font.BOLD, 25));
+
         // painel centro
         painelcentro.setLayout(new GridLayout(4, 2));
         painelcentro.add(lbCliente);
@@ -169,15 +193,16 @@ public class PedidoGUI extends JDialog {
         painelcentro.add(lbDataPedido);
         painelcentro.add(tfDataPedido);
         painelcentro.add(lbEntregue);
-        painelcentro.add(tfEntregue);
+        painelcentro.add(painel);
 
         tfDataPedido.setEditable(false);
-        tfEntregue.setEditable(false);
+        sim.setEnabled(false);
+        nao.setEnabled(false);
 
         lbDataPedido.setFont(new Font("Arial", Font.BOLD, 18));
         tfDataPedido.setFont(new Font("Arial", Font.BOLD, 18));
         lbEntregue.setFont(new Font("Arial", Font.BOLD, 18));
-        tfEntregue.setFont(new Font("Arial", Font.BOLD, 18));
+
         lbCliente.setFont(new Font("Arial", Font.BOLD, 18));
         lbAcompanhamentos.setFont(new Font("Arial", Font.BOLD, 18));
 
@@ -187,7 +212,7 @@ public class PedidoGUI extends JDialog {
         lbCliente.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         lbAcompanhamentos.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         tfDataPedido.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
-        tfEntregue.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
+        painel.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
         // painel sul
         cardLayout = new CardLayout();
         painelsul.setLayout(cardLayout);
@@ -214,49 +239,119 @@ public class PedidoGUI extends JDialog {
         painelleste.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // funcionalidade dos botoes.
+        // radio
+        sim.addActionListener((ActionEvent ae) -> {
+            if (sim.isSelected() && nao.isSelected()) {
+                nao.doClick();
+            }
+
+        });
+
+        nao.addActionListener((ActionEvent ae) -> {
+            if (sim.isSelected() && nao.isSelected()) {
+                sim.doClick();
+            }
+
+        });
+        //listeners
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            pedido = daoPedido.obter(Integer.valueOf(tfId.getText()));
-            if (pedido != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfDataPedido.setText(simpleDateFormat.format(pedido.getDatapedido()));
-                tfEntregue.setText(String.valueOf(pedido.getEntregue()));
-                tfDataPedido.setEditable(false);
-                tfEntregue.setEditable(false);
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                pedido = daoPedido.obter(Integer.valueOf(tfId.getText()));
+                if (pedido != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfDataPedido.setText(simpleDateFormat.format(pedido.getDatapedido()));
+                    //tfEntregue.setText(String.valueOf(pedido.getEntregue()));
+                    sim.setEnabled(true);
+                    nao.setEnabled(true);
+                    if (sim.isSelected() && nao.isSelected()) {
+                        sim.doClick();
+                        nao.doClick();
+                    } else if (sim.isSelected() && nao.isSelected() == false) {
+                        sim.doClick();
+                    } else if (sim.isSelected() == false && nao.isSelected()) {
+                        nao.doClick();
+                    }
+                    if (1 == pedido.getEntregue()) {
+                        sim.doClick();
+                    } else {
+                        nao.doClick();
+                    }
+                    tfDataPedido.setEditable(false);
+                    sim.setEnabled(false);
+                    nao.setEnabled(false);
 
-                botaosalvar.setVisible(false);
+                    botaosalvar.setVisible(false);
 
-                cbCliente.setEnabled(false);
-                cbAcompanhamentos.setEnabled(false);
+                    cbCliente.setEnabled(false);
+                    cbAcompanhamentos.setEnabled(false);
 
-                cbCliente.setSelectedItem(pedido.getClienteIdcliente().getIdcliente()
-                        + "-" + pedido.getClienteIdcliente().getPessoaidpessoa().getNome());
-                cbAcompanhamentos.setSelectedItem(pedido.getAcompanhamentosidacompanhamentos().getIdacompanhamentos()
-                        + "-" + pedido.getAcompanhamentosidacompanhamentos().getNomeaconpanhamento());
+                    cbCliente.setSelectedItem(pedido.getClienteIdcliente().getIdcliente()
+                            + "-" + pedido.getClienteIdcliente().getPessoaidpessoa().getNome());
+                    cbAcompanhamentos.setSelectedItem(pedido.getAcompanhamentosidacompanhamentos().getIdacompanhamentos()
+                            + "-" + pedido.getAcompanhamentosidacompanhamentos().getNomeaconpanhamento());
 
-            } else {
+                } else {
+                    cbCliente.setEnabled(false);
+                    cbAcompanhamentos.setEnabled(false);
+                    tfDataPedido.setText("");
+                    sim.setEnabled(true);
+                    nao.setEnabled(true);
+                    if (sim.isSelected() && nao.isSelected()) {
+                        sim.doClick();
+                        nao.doClick();
+                    } else if (sim.isSelected() && nao.isSelected() == false) {
+                        sim.doClick();
+                    } else if (sim.isSelected() == false && nao.isSelected()) {
+                        nao.doClick();
+                    }
+                    botaoadicionar.setVisible(true);
+                    tfDataPedido.setEditable(false);
+                    sim.setEnabled(false);
+                    nao.setEnabled(false);
+
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 cbCliente.setEnabled(false);
                 cbAcompanhamentos.setEnabled(false);
                 tfDataPedido.setText("");
-                tfEntregue.setText("");
-                botaoadicionar.setVisible(true);
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
+                botaoadicionar.setVisible(false);
                 tfDataPedido.setEditable(false);
-                tfEntregue.setEditable(false);
+                sim.setEnabled(false);
+                nao.setEnabled(false);
 
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-
             }
         });
 
         botaoadicionar.addActionListener((ActionEvent ae) -> {
             tfId.setEditable(false);
             tfDataPedido.setEditable(true);
-            tfEntregue.setEditable(true);
+            sim.setEnabled(true);
+            nao.setEnabled(true);
             tfDataPedido.requestFocus();
             cbCliente.setEnabled(true);
             cbAcompanhamentos.setEnabled(true);
@@ -274,15 +369,20 @@ public class PedidoGUI extends JDialog {
                 botaoexcluir.setVisible(false);
                 botaocancelar.setVisible(false);
                 botaolistar.setVisible(true);
-
                 if (acao.equals("adicionar")) {
                     pedido = new Pedido();
                     Integer id = Integer.valueOf(tfId.getText());
                     Integer idcliente = Integer.valueOf(String.valueOf(cbCliente.getSelectedItem()).split("-")[0]);
                     Integer idAcompanhamentos = Integer.valueOf(String.valueOf(cbAcompanhamentos.getSelectedItem()).split("-")[0]);
-                    Short avalia = Short.valueOf(tfEntregue.getText());
+                    if (sim.isSelected()) {
+                        conta = 1;
+                    } else if (nao.isSelected()) {
+                        conta = 0;
+                    } else if (nao.isSelected() == false && sim.isSelected() == false) {
+                        conta = 0;
+                    }
                     pedido.setIdpedido(id);
-                    pedido.setEntregue(avalia);
+                    pedido.setEntregue(conta);
                     pedido.setClienteIdcliente(daoCliente.obter(idcliente));
                     pedido.setAcompanhamentosidacompanhamentos(daoAcompanhamentos.obter(idAcompanhamentos));
                     try {
@@ -295,9 +395,15 @@ public class PedidoGUI extends JDialog {
                     Integer id = Integer.valueOf(tfId.getText());
                     Integer idcliente = Integer.valueOf(String.valueOf(cbCliente.getSelectedItem()).split("-")[0]);
                     Integer idAcompanhamentos = Integer.valueOf(String.valueOf(cbAcompanhamentos.getSelectedItem()).split("-")[0]);
-                    Short avalia = Short.valueOf(tfEntregue.getText());
+                    if (sim.isSelected()) {
+                        conta = 1;
+                    } else if (nao.isSelected()) {
+                        conta = 0;
+                    } else if (nao.isSelected() == false && sim.isSelected() == false) {
+                        conta = 0;
+                    }
                     pedido.setIdpedido(id);
-                    pedido.setEntregue(avalia);
+                    pedido.setEntregue(conta);
                     pedido.setClienteIdcliente(daoCliente.obter(idcliente));
                     pedido.setAcompanhamentosidacompanhamentos(daoAcompanhamentos.obter(idAcompanhamentos));
                     try {
@@ -307,31 +413,46 @@ public class PedidoGUI extends JDialog {
                     }
                     daoPedido.atualizar(pedido);
                 }
-
                 botaosalvar.setVisible(false);
                 tfId.setEditable(true);
                 tfId.requestFocus();
                 tfId.setText("");
                 tfDataPedido.setText("");
-                tfEntregue.setText("");
-
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
                 tfDataPedido.setEditable(false);
                 cbCliente.setEnabled(false);
                 cbAcompanhamentos.setEnabled(false);
-                tfEntregue.setEditable(false);
-
+                sim.setEnabled(false);
+                nao.setEnabled(false);
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
                 JOptionPane.showMessageDialog(null, "voce digitou algo estranho", "erro no salvamento", JOptionPane.PLAIN_MESSAGE);
                 tfDataPedido.requestFocus();
                 tfDataPedido.setText("");
-                tfEntregue.setText("");
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
                 cbCliente.setEnabled(true);
                 cbAcompanhamentos.setEnabled(true);
                 botaocancelar.setVisible(true);
                 tfDataPedido.setEditable(true);
-                tfEntregue.setEditable(true);
             }
         });
 
@@ -342,7 +463,8 @@ public class PedidoGUI extends JDialog {
             botaoalterar.setVisible(false);
             tfId.setEditable(false);
             tfDataPedido.setEditable(true);
-            tfEntregue.setEditable(true);
+            sim.setEnabled(true);
+            nao.setEnabled(true);
             cbCliente.setEnabled(true);
             cbAcompanhamentos.setEnabled(true);
             tfDataPedido.requestFocus();
@@ -355,22 +477,30 @@ public class PedidoGUI extends JDialog {
         botaoexcluir.addActionListener((ActionEvent ae) -> {
             int resposta = JOptionPane.showConfirmDialog(cp, "Deseja mesmo excluir?", "Confirmar",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            botaoexcluir.setVisible(false);
-            botaoalterar.setVisible(false);
-            tfId.setEditable(true);
-            tfId.requestFocus();
-            tfId.setText("");
-            tfDataPedido.setText("");
-            tfEntregue.setText("");
-            cbCliente.setEnabled(false);
-            cbAcompanhamentos.setEnabled(false);
-
-            tfDataPedido.setEditable(false);
-            tfEntregue.setEditable(false);
-
-            botaobuscar.setVisible(true);
             if (resposta == JOptionPane.YES_OPTION) {
                 daoPedido.remover(pedido);
+                botaoexcluir.setVisible(false);
+                botaoalterar.setVisible(false);
+                tfId.setEditable(true);
+                tfId.requestFocus();
+                tfId.setText("");
+                tfDataPedido.setText("");
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
+                cbCliente.setEnabled(false);
+                cbAcompanhamentos.setEnabled(false);
+                tfDataPedido.setEditable(false);
+                sim.setEnabled(false);
+                nao.setEnabled(false);
+                botaobuscar.setVisible(true);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
 
@@ -401,11 +531,19 @@ public class PedidoGUI extends JDialog {
             tfDataPedido.setText("");
             cbCliente.setEnabled(false);
             cbAcompanhamentos.setEnabled(false);
-            tfEntregue.setText("");
-
+            sim.setEnabled(true);
+            nao.setEnabled(true);
+            if (sim.isSelected() && nao.isSelected()) {
+                sim.doClick();
+                nao.doClick();
+            } else if (sim.isSelected() && nao.isSelected() == false) {
+                sim.doClick();
+            } else if (sim.isSelected() == false && nao.isSelected()) {
+                nao.doClick();
+            }
             tfDataPedido.setEditable(false);
-            tfEntregue.setEditable(false);
-
+            sim.setEnabled(false);
+            nao.setEnabled(false);
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);

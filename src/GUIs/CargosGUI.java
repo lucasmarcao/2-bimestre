@@ -29,7 +29,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 public class CargosGUI extends JDialog {
 
     Container cp;
-    
+
     JDialog dialogo = new JDialog();
 
     JPanel painelnorte = new JPanel();
@@ -175,34 +175,52 @@ public class CargosGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            cargos = daoCargos.obter(Integer.valueOf(tfId.getText()));
-            if (cargos != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfNome.setText(cargos.getNomecargo());
-                tfdescricao.setText(cargos.getDescricaoCargo());
-                tfNome.setEditable(false);
-                tfdescricao.setEditable(false);
-                
-                botaosalvar.setVisible(false);
-                
-                planetaDoAlien.setEnabled(false);
-                
-            } else {
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                cargos = daoCargos.obter(Integer.valueOf(tfId.getText()));
+                if (cargos != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfNome.setText(cargos.getNomecargo());
+                    tfdescricao.setText(cargos.getDescricaoCargo());
+                    tfNome.setEditable(false);
+                    tfdescricao.setEditable(false);
+
+                    botaosalvar.setVisible(false);
+
+                    planetaDoAlien.setEnabled(false);
+
+                } else {
+                    planetaDoAlien.setEnabled(false);
+                    tfNome.setText("");
+                    tfdescricao.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfNome.setEditable(false);
+                    tfdescricao.setEditable(false);
+
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 planetaDoAlien.setEnabled(false);
                 tfNome.setText("");
                 tfdescricao.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfNome.setEditable(false);
                 tfdescricao.setEditable(false);
-                
+
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-                
+
             }
         });
 
@@ -222,12 +240,12 @@ public class CargosGUI extends JDialog {
 
         botaosalvar.addActionListener((ActionEvent ae) -> {
             try {
-                
+
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
                 botaocancelar.setVisible(false);
                 botaolistar.setVisible(true);
-                
+
                 if (acao.equals("adicionar")) {
                     cargos = new Cargos();
                     Integer id = Integer.valueOf(tfId.getText());
@@ -251,11 +269,11 @@ public class CargosGUI extends JDialog {
                 tfId.setText("");
                 tfNome.setText("");
                 tfdescricao.setText("");
-                
+
                 tfNome.setEditable(false);
                 planetaDoAlien.setEnabled(false);
                 tfdescricao.setEditable(false);
-                
+
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
@@ -280,7 +298,7 @@ public class CargosGUI extends JDialog {
             tfdescricao.setEditable(true);
             planetaDoAlien.setEnabled(true);
             tfNome.requestFocus();
-            
+
             botaosalvar.setVisible(true);
             botaocancelar.setVisible(true);
             acao = "alterar";
@@ -297,16 +315,16 @@ public class CargosGUI extends JDialog {
             tfNome.setText("");
             tfdescricao.setText("");
             planetaDoAlien.setEnabled(false);
-            
+
             tfNome.setEditable(false);
             tfdescricao.setEditable(false);
-            
+
             botaobuscar.setVisible(true);
             if (resposta == JOptionPane.YES_OPTION) {
                 daoCargos.remover(cargos);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
-                
+
             }
         });
 
@@ -334,10 +352,10 @@ public class CargosGUI extends JDialog {
             tfNome.setText("");
             planetaDoAlien.setEnabled(true);
             tfdescricao.setText("");
-            
+
             tfNome.setEditable(false);
             tfdescricao.setEditable(false);
-            
+
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);

@@ -183,6 +183,7 @@ public class ClienteGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
+            try{
             cardLayout.show(painelsul, "avisos");
             chavePrimaria = tfId.getText();
             cliente = daoCliente.obter(Integer.valueOf(tfId.getText()));
@@ -207,6 +208,23 @@ public class ClienteGUI extends JDialog {
                 tfTotalCompras.setText("");
                 tfAvaliacaoServico.setText("");
                 botaoadicionar.setVisible(true);
+                tfTotalCompras.setEditable(false);
+                tfAvaliacaoServico.setEditable(false);
+
+                botaosalvar.setVisible(false);
+                botaoalterar.setVisible(false);
+                botaoexcluir.setVisible(false);
+
+            }
+             } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
+                  planetaDoAlien.setEnabled(false);
+                tfTotalCompras.setText("");
+                tfAvaliacaoServico.setText("");
+                botaoadicionar.setVisible(false);
                 tfTotalCompras.setEditable(false);
                 tfAvaliacaoServico.setEditable(false);
 

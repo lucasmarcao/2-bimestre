@@ -27,6 +27,7 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JRadioButton;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class FuncionarioGUI extends JDialog {
@@ -55,7 +56,11 @@ public class FuncionarioGUI extends JDialog {
     JLabel lbSalario = new JLabel("SALARIO", JLabel.CENTER);
     JTextField tfSalario = new JTextField(30);
     JLabel lbTrabalhando = new JLabel("ESTÁ TRABALHANDO?", JLabel.CENTER);
-    JTextField tfTrabalhando = new JTextField(30);
+    JPanel painel = new JPanel();
+    Short conta = 0;
+    JRadioButton sim = new JRadioButton("sim");
+    JRadioButton nao = new JRadioButton("não");
+
     JLabel lbPessoa = new JLabel("Pessoa", JLabel.CENTER);
     JLabel lbCargos = new JLabel("Cargo", JLabel.CENTER);
     String acao = "";
@@ -155,24 +160,37 @@ public class FuncionarioGUI extends JDialog {
         botaolistar.setBackground(Color.LIGHT_GRAY);
         tfId.setBorder(BorderFactory.createLineBorder(Color.black));
 
+        // radio 
+        painel.setLayout(new GridLayout(1, 2));
+        painel.add(sim);
+        painel.add(nao);
+
+        sim.setHorizontalAlignment((int) CENTER_ALIGNMENT);
+        nao.setHorizontalAlignment((int) CENTER_ALIGNMENT);
+        sim.setBackground(new Color(240, 190, 0));
+        nao.setBackground(new Color(240, 190, 0));
+        sim.setFont(new Font("Times New Roman", Font.BOLD, 25));
+        nao.setFont(new Font("Times New Roman", Font.BOLD, 25));
+
         // painel centro
         painelcentro.setLayout(new GridLayout(4, 2));
         painelcentro.add(lbSalario);
         painelcentro.add(tfSalario);
         painelcentro.add(lbTrabalhando);
-        painelcentro.add(tfTrabalhando);
+        painelcentro.add(painel);
         painelcentro.add(lbPessoa);
         painelcentro.add(cbPessoa);
         painelcentro.add(lbCargos);
         painelcentro.add(cbCargos);
 
         tfSalario.setEditable(false);
-        tfTrabalhando.setEditable(false);
+        sim.setEnabled(false);
+        nao.setEnabled(false);
 
         lbSalario.setFont(new Font("Arial", Font.BOLD, 18));
         tfSalario.setFont(new Font("Arial", Font.BOLD, 18));
         lbTrabalhando.setFont(new Font("Arial", Font.BOLD, 18));
-        tfTrabalhando.setFont(new Font("Arial", Font.BOLD, 18));
+
         lbPessoa.setFont(new Font("Arial", Font.BOLD, 18));
         lbCargos.setFont(new Font("Arial", Font.BOLD, 18));
 
@@ -182,12 +200,11 @@ public class FuncionarioGUI extends JDialog {
         lbPessoa.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         lbCargos.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         tfSalario.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
-        tfTrabalhando.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
+        painel.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
         // painel sul
         cardLayout = new CardLayout();
         painelsul.setLayout(cardLayout);
-        
-        
+
         // borda paineis
         painelsul.setBorder(BorderFactory.createLineBorder(Color.black));
         painelcentro.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -209,50 +226,113 @@ public class FuncionarioGUI extends JDialog {
         paineloeste.setLayout(new FlowLayout(FlowLayout.LEFT));
         painelleste.setLayout(new FlowLayout(FlowLayout.LEFT));
 
+        // radio
+        sim.addActionListener((ActionEvent ae) -> {
+            if (sim.isSelected() && nao.isSelected()) {
+                nao.doClick();
+            }
+
+        });
+
+        nao.addActionListener((ActionEvent ae) -> {
+            if (sim.isSelected() && nao.isSelected()) {
+                sim.doClick();
+            }
+
+        });
+        //listeners
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            funcionario = daoFuncionario.obter(Integer.valueOf(tfId.getText()));
-            if (funcionario != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfSalario.setText(String.valueOf(funcionario.getSalario()));
-                tfTrabalhando.setText(String.valueOf(funcionario.getTrabalhando()));
-                tfSalario.setEditable(false);
-                tfTrabalhando.setEditable(false);
-
-                botaosalvar.setVisible(false);
-
-                cbPessoa.setEnabled(false);
-                cbCargos.setEnabled(false);
-
-                cbPessoa.setSelectedItem(funcionario.getPessoaidpessoa().getIdpessoa()
-                        + "-" + funcionario.getPessoaidpessoa().getNome());
-                cbCargos.setSelectedItem(funcionario.getCargosidcargos().getIdcargos()
-                        + "-" + funcionario.getCargosidcargos().getNomecargo());
-
-            } else {
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                funcionario = daoFuncionario.obter(Integer.valueOf(tfId.getText()));
+                if (funcionario != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfSalario.setText(String.valueOf(funcionario.getSalario()));
+                    //tfEntregue.setText(String.valueOf(funcionario.getEntregue()));
+                    sim.setEnabled(true);
+                    nao.setEnabled(true);
+                    if (sim.isSelected() && nao.isSelected()) {
+                        sim.doClick();
+                        nao.doClick();
+                    } else if (sim.isSelected() && nao.isSelected() == false) {
+                        sim.doClick();
+                    } else if (sim.isSelected() == false && nao.isSelected()) {
+                        nao.doClick();
+                    }
+                    if (1 == funcionario.getTrabalhando()) {
+                        sim.doClick();
+                    } else {
+                        nao.doClick();
+                    }
+                    tfSalario.setEditable(false);
+                    sim.setEnabled(false);
+                    nao.setEnabled(false);
+                    botaosalvar.setVisible(false);
+                    cbPessoa.setEnabled(false);
+                    cbCargos.setEnabled(false);
+                    cbPessoa.setSelectedItem(funcionario.getPessoaidpessoa().getIdpessoa()
+                            + "-" + funcionario.getPessoaidpessoa().getNome());
+                    cbCargos.setSelectedItem(funcionario.getCargosidcargos().getIdcargos()
+                            + "-" + funcionario.getCargosidcargos().getNomecargo());
+                } else {
+                    cbPessoa.setEnabled(false);
+                    cbCargos.setEnabled(false);
+                    tfSalario.setText("");
+                    sim.setEnabled(true);
+                    nao.setEnabled(true);
+                    if (sim.isSelected() && nao.isSelected()) {
+                        sim.doClick();
+                        nao.doClick();
+                    } else if (sim.isSelected() && nao.isSelected() == false) {
+                        sim.doClick();
+                    } else if (sim.isSelected() == false && nao.isSelected()) {
+                        nao.doClick();
+                    }
+                    botaoadicionar.setVisible(true);
+                    tfSalario.setEditable(false);
+                    sim.setEnabled(false);
+                    nao.setEnabled(false);
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 cbPessoa.setEnabled(false);
                 cbCargos.setEnabled(false);
                 tfSalario.setText("");
-                tfTrabalhando.setText("");
-                botaoadicionar.setVisible(true);
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
+                botaoadicionar.setVisible(false);
                 tfSalario.setEditable(false);
-                tfTrabalhando.setEditable(false);
-
+                sim.setEnabled(false);
+                nao.setEnabled(false);
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-
             }
         });
 
         botaoadicionar.addActionListener((ActionEvent ae) -> {
             tfId.setEditable(false);
             tfSalario.setEditable(true);
-            tfTrabalhando.setEditable(true);
+            sim.setEnabled(true);
+            nao.setEnabled(true);
             tfSalario.requestFocus();
             cbPessoa.setEnabled(true);
             cbCargos.setEnabled(true);
@@ -275,8 +355,14 @@ public class FuncionarioGUI extends JDialog {
                     funcionario = new Funcionario();
                     Integer id = Integer.valueOf(tfId.getText());
                     funcionario.setIdfuncionario(id);
-                    Short avalia = Short.valueOf(tfTrabalhando.getText());
-                    funcionario.setTrabalhando(avalia);
+                    if (sim.isSelected()) {
+                        conta = 1;
+                    } else if (nao.isSelected()) {
+                        conta = 0;
+                    } else if (nao.isSelected() == false && sim.isSelected() == false) {
+                        conta = 0;
+                    }
+                    funcionario.setTrabalhando(conta);
                     funcionario.setSalario(Double.valueOf(tfSalario.getText()));
                     Integer idpessoa = Integer.valueOf(String.valueOf(cbPessoa.getSelectedItem()).split("-")[0]);
                     Integer idCargos = Integer.valueOf(String.valueOf(cbCargos.getSelectedItem()).split("-")[0]);
@@ -286,8 +372,14 @@ public class FuncionarioGUI extends JDialog {
                 } else {
                     Integer id = Integer.valueOf(tfId.getText());
                     funcionario.setIdfuncionario(id);
-                    Short avalia = Short.valueOf(tfTrabalhando.getText());
-                    funcionario.setTrabalhando(avalia);
+                    if (sim.isSelected()) {
+                        conta = 1;
+                    } else if (nao.isSelected()) {
+                        conta = 0;
+                    } else if (nao.isSelected() == false && sim.isSelected() == false) {
+                        conta = 0;
+                    }
+                    funcionario.setTrabalhando(conta);
                     funcionario.setSalario(Double.valueOf(tfSalario.getText()));
                     Integer idpessoa = Integer.valueOf(String.valueOf(cbPessoa.getSelectedItem()).split("-")[0]);
                     Integer idCargos = Integer.valueOf(String.valueOf(cbCargos.getSelectedItem()).split("-")[0]);
@@ -301,25 +393,33 @@ public class FuncionarioGUI extends JDialog {
                 tfId.requestFocus();
                 tfId.setText("");
                 tfSalario.setText("");
-                tfTrabalhando.setText("");
-
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
                 tfSalario.setEditable(false);
                 cbPessoa.setEnabled(false);
                 cbCargos.setEnabled(false);
-                tfTrabalhando.setEditable(false);
-
+                sim.setEnabled(false);
+                nao.setEnabled(false);
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
                 JOptionPane.showMessageDialog(null, "voce digitou algo estranho", "erro no salvamento", JOptionPane.PLAIN_MESSAGE);
                 tfSalario.requestFocus();
                 tfSalario.setText("");
-                tfTrabalhando.setText("");
                 cbPessoa.setEnabled(true);
                 cbCargos.setEnabled(true);
                 botaocancelar.setVisible(true);
                 tfSalario.setEditable(true);
-                tfTrabalhando.setEditable(true);
+                sim.setEnabled(false);
+                nao.setEnabled(false);
             }
         });
 
@@ -330,7 +430,8 @@ public class FuncionarioGUI extends JDialog {
             botaoalterar.setVisible(false);
             tfId.setEditable(false);
             tfSalario.setEditable(true);
-            tfTrabalhando.setEditable(true);
+            sim.setEnabled(true);
+            nao.setEnabled(true);
             cbPessoa.setEnabled(true);
             cbCargos.setEnabled(true);
             tfSalario.requestFocus();
@@ -343,22 +444,30 @@ public class FuncionarioGUI extends JDialog {
         botaoexcluir.addActionListener((ActionEvent ae) -> {
             int resposta = JOptionPane.showConfirmDialog(cp, "Deseja mesmo excluir?", "Confirmar",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            botaoexcluir.setVisible(false);
-            botaoalterar.setVisible(false);
-            tfId.setEditable(true);
-            tfId.requestFocus();
-            tfId.setText("");
-            tfSalario.setText("");
-            tfTrabalhando.setText("");
-            cbPessoa.setEnabled(false);
-            cbCargos.setEnabled(false);
-
-            tfSalario.setEditable(false);
-            tfTrabalhando.setEditable(false);
-
-            botaobuscar.setVisible(true);
             if (resposta == JOptionPane.YES_OPTION) {
                 daoFuncionario.remover(funcionario);
+                botaoexcluir.setVisible(false);
+                botaoalterar.setVisible(false);
+                tfId.setEditable(true);
+                tfId.requestFocus();
+                tfId.setText("");
+                tfSalario.setText("");
+                sim.setEnabled(true);
+                nao.setEnabled(true);
+                if (sim.isSelected() && nao.isSelected()) {
+                    sim.doClick();
+                    nao.doClick();
+                } else if (sim.isSelected() && nao.isSelected() == false) {
+                    sim.doClick();
+                } else if (sim.isSelected() == false && nao.isSelected()) {
+                    nao.doClick();
+                }
+                cbPessoa.setEnabled(false);
+                cbCargos.setEnabled(false);
+                tfSalario.setEditable(false);
+                sim.setEnabled(false);
+                nao.setEnabled(false);
+                botaobuscar.setVisible(true);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
 
@@ -389,11 +498,19 @@ public class FuncionarioGUI extends JDialog {
             tfSalario.setText("");
             cbPessoa.setEnabled(false);
             cbCargos.setEnabled(false);
-            tfTrabalhando.setText("");
-
+            sim.setEnabled(true);
+            nao.setEnabled(true);
+            if (sim.isSelected() && nao.isSelected()) {
+                sim.doClick();
+                nao.doClick();
+            } else if (sim.isSelected() && nao.isSelected() == false) {
+                sim.doClick();
+            } else if (sim.isSelected() == false && nao.isSelected()) {
+                nao.doClick();
+            }
             tfSalario.setEditable(false);
-            tfTrabalhando.setEditable(false);
-
+            sim.setEnabled(false);
+            nao.setEnabled(false);
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);

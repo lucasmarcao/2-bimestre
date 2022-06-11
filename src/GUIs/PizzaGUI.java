@@ -9,7 +9,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import javax.swing.BorderFactory;
@@ -23,7 +22,8 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import java.awt.GridLayout;
-import java.text.ParseException;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import tools.UsarGridBagLayout;
@@ -59,7 +59,9 @@ public class PizzaGUI extends JDialog {
     JLabel lbpreco = new JLabel("preco", JLabel.CENTER);
     JTextField tfpreco = new JTextField(30);
     JLabel lbtamanho = new JLabel("tamanho", JLabel.CENTER);
-    JTextField tftamanho = new JTextField(30);
+    //JTextField tftamanho = new JTextField(30);
+    DefaultComboBoxModel cbm = new DefaultComboBoxModel();
+    JComboBox cbTamanho = new JComboBox(cbm);
 
     String acao = "";
 
@@ -99,6 +101,17 @@ public class PizzaGUI extends JDialog {
         painelnorte.setBackground(new Color(240, 190, 0));
         painelcentro.setBackground(new Color(238, 173, 45));
         painelsul.setBackground(new Color(240, 190, 0));
+        // combo add
+        cbm.addElement("4 Pedaços");
+        cbm.addElement("6 Pedaços");
+        cbm.addElement("8 Pedaços");
+        cbm.addElement("12 Pedaços");
+        cbTamanho.setBorder(BorderFactory.createLineBorder(Color.black));
+        cbTamanho.setFont(new Font("Impact", Font.PLAIN, 22));
+        cbTamanho.setForeground(new Color(0, 96, 55));
+        cbTamanho.setBackground(Color.ORANGE);
+        cbTamanho.setEnabled(false);
+
         // tipo dos paineis
         // painel norte
         painelnorte.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -136,23 +149,25 @@ public class PizzaGUI extends JDialog {
         usarGridBagLayout.add(lbnomepizza, tfnomepizza);
         usarGridBagLayout.add(lbsabor, tfsabor);
         usarGridBagLayout.add(lbpreco, tfpreco);
-        usarGridBagLayout.add(lbtamanho, tftamanho);
+        usarGridBagLayout.add(lbtamanho, cbTamanho);
 
         tfpreco.setEditable(false);
         tfnomepizza.setEditable(false);
-        tftamanho.setEditable(false);
+        cbTamanho.setEnabled(false);
         tfsabor.setEditable(false);
 
-        lbpreco.setFont(new Font("Arial", Font.BOLD, 18));
+        lbpreco.setFont(new Font("Arial", Font.BOLD, 20));
         tfpreco.setFont(new Font("Arial", Font.BOLD, 18));
-        lbsabor.setFont(new Font("Arial", Font.BOLD, 18));
-        lbtamanho.setFont(new Font("Arial", Font.BOLD, 18));
-        lbnomepizza.setFont(new Font("Arial", Font.BOLD, 18));
+        tfnomepizza.setFont(new Font("Arial", Font.BOLD, 18));
+        tfsabor.setFont(new Font("Arial", Font.BOLD, 18));
+        lbsabor.setFont(new Font("Arial", Font.BOLD, 20));
+        lbtamanho.setFont(new Font("Arial", Font.BOLD, 20));
+        lbnomepizza.setFont(new Font("Arial", Font.BOLD, 20));
 
         // borda dos centro 
         tfpreco.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
         tfnomepizza.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
-        tftamanho.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
+        cbTamanho.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
         tfsabor.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
         // painel sul
         cardLayout = new CardLayout();
@@ -181,39 +196,49 @@ public class PizzaGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            pizza = daoPizza.obter(Integer.valueOf(tfId.getText()));
-            if (pizza != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfnomepizza.setText(pizza.getNomepizza());
-                tftamanho.setText(pizza.getTamanho());
-                tfsabor.setText(pizza.getSabor());
-
-                tfpreco.setText(String.valueOf(pizza.getPreco()));
-
-                tfpreco.setEditable(false);
-
-                botaosalvar.setVisible(false);
-
-            } else {
-
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                pizza = daoPizza.obter(Integer.valueOf(tfId.getText()));
+                if (pizza != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfnomepizza.setText(pizza.getNomepizza());
+                    cbTamanho.setSelectedItem(pizza.getTamanho());
+                    tfsabor.setText(pizza.getSabor());
+                    tfpreco.setText(String.valueOf(pizza.getPreco()));
+                    tfpreco.setEditable(false);
+                    botaosalvar.setVisible(false);
+                } else {
+                    tfpreco.setText("");
+                    tfnomepizza.setText("");
+                    tfsabor.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfpreco.setEditable(false);
+                    tfnomepizza.setEditable(false);
+                    cbTamanho.setEnabled(false);
+                    tfsabor.setEditable(false);
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 tfpreco.setText("");
                 tfnomepizza.setText("");
-                tftamanho.setText("");
                 tfsabor.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfpreco.setEditable(false);
                 tfnomepizza.setEditable(false);
-                tftamanho.setEditable(false);
+                cbTamanho.setEnabled(false);
                 tfsabor.setEditable(false);
-
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-
             }
         });
 
@@ -222,9 +247,8 @@ public class PizzaGUI extends JDialog {
             tfnomepizza.requestFocus();
             tfpreco.setEditable(true);
             tfnomepizza.setEditable(true);
-            tftamanho.setEditable(true);
+            cbTamanho.setEnabled(true);
             tfsabor.setEditable(true);
-
             botaoadicionar.setVisible(false);
             botaosalvar.setVisible(true);
             botaobuscar.setVisible(false);
@@ -245,55 +269,47 @@ public class PizzaGUI extends JDialog {
                     Integer id = Integer.valueOf(tfId.getText());
                     Double altura = Double.valueOf(tfpreco.getText());
                     String cpf = tfsabor.getText();
-                    String cep = tftamanho.getText();
+                    String tamanho = String.valueOf(cbTamanho.getSelectedItem());
                     String nomepizza = tfnomepizza.getText();
                     pizza.setIdtable1(id);
                     pizza.setNomepizza(nomepizza);
                     pizza.setPreco(altura);
                     pizza.setSabor(cpf);
-                    pizza.setTamanho(cep);
+                    pizza.setTamanho(tamanho);
 
                     daoPizza.inserir(pizza);
                 } else {
                     Integer id = Integer.valueOf(tfId.getText());
                     Double altura = Double.valueOf(tfpreco.getText());
                     String cpf = tfsabor.getText();
-                    String cep = tftamanho.getText();
+                    String tamanho = String.valueOf(cbTamanho.getSelectedItem());
                     String nomepizza = tfnomepizza.getText();
                     pizza.setIdtable1(id);
                     pizza.setNomepizza(nomepizza);
                     pizza.setPreco(altura);
                     pizza.setSabor(cpf);
-                    pizza.setTamanho(cep);
-
+                    pizza.setTamanho(tamanho);
                     daoPizza.atualizar(pizza);
                 }
-
                 botaosalvar.setVisible(false);
                 tfId.setEditable(true);
                 tfId.requestFocus();
                 tfId.setText("");
-
                 tfpreco.setText("");
                 tfnomepizza.setText("");
-                tftamanho.setText("");
                 tfsabor.setText("");
-
                 tfpreco.setEditable(false);
                 tfnomepizza.setEditable(false);
-                tftamanho.setEditable(false);
+                cbTamanho.setEnabled(false);
                 tfsabor.setEditable(false);
-
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
                 JOptionPane.showMessageDialog(null, "voce digitou algo estranho", "erro no salvamento", JOptionPane.PLAIN_MESSAGE);
-
                 botaocancelar.setVisible(true);
-
                 tfpreco.setEditable(true);
                 tfnomepizza.setEditable(true);
-                tftamanho.setEditable(true);
+                cbTamanho.setEnabled(true);
                 tfsabor.setEditable(true);
             }
         });
@@ -305,12 +321,10 @@ public class PizzaGUI extends JDialog {
             botaoalterar.setVisible(false);
             tfId.setEditable(false);
             tfnomepizza.requestFocus();
-
             tfpreco.setEditable(true);
             tfnomepizza.setEditable(true);
-            tftamanho.setEditable(true);
+            cbTamanho.setEnabled(true);
             tfsabor.setEditable(true);
-
             botaosalvar.setVisible(true);
             botaocancelar.setVisible(true);
             acao = "alterar";
@@ -328,20 +342,16 @@ public class PizzaGUI extends JDialog {
                 botaobuscar.setVisible(true);
                 tfId.requestFocus();
                 tfId.setText("");
-
                 tfpreco.setText("");
                 tfnomepizza.setText("");
-                tftamanho.setText("");
                 tfsabor.setText("");
-
                 tfpreco.setEditable(false);
                 tfnomepizza.setEditable(false);
-                tftamanho.setEditable(false);
+                cbTamanho.setEnabled(false);
                 tfsabor.setEditable(false);
                 daoPizza.remover(pizza);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
-
             }
         });
 
@@ -366,21 +376,17 @@ public class PizzaGUI extends JDialog {
             tfId.setEditable(true);
             tfId.requestFocus();
             tfId.setText("");
-
             tfpreco.setText("");
             tfnomepizza.setText("");
-            tftamanho.setText("");
             tfsabor.setText("");
             tfpreco.setEditable(false);
             tfnomepizza.setEditable(false);
-            tftamanho.setEditable(false);
+            cbTamanho.setEnabled(false);
             tfsabor.setEditable(false);
-
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);
         });
-
         // finaliza o gui
         dialogo.setModal(true);
         dialogo.setSize(1000, 600);

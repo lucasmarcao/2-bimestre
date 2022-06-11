@@ -28,6 +28,7 @@ import javax.swing.JDialog;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class AcompanhamentosGUI extends JDialog {
+
     JDialog dialogo = new JDialog();
 
     Container cp;
@@ -160,7 +161,7 @@ public class AcompanhamentosGUI extends JDialog {
         // painel sul
         cardLayout = new CardLayout();
         painelsul.setLayout(cardLayout);
-        
+
         // borda paineis
         painelsul.setBorder(BorderFactory.createLineBorder(Color.black));
         painelcentro.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -184,39 +185,57 @@ public class AcompanhamentosGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            acompanhamentos = daoAcompanhamentos.obter(Integer.valueOf(tfId.getText()));
-            if (acompanhamentos != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfNome.setText(acompanhamentos.getNomeaconpanhamento());
-                tffornecedor.setText(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
-                        + " --> " + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
-                tfNome.setEditable(false);
-                tffornecedor.setEditable(false);
-                
-                botaosalvar.setVisible(false);
-                
-                cbFornecedor.setEnabled(false);
-                
-                cbFornecedor.setSelectedItem(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
-                        + "-" + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
-                
-            } else {
+
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                acompanhamentos = daoAcompanhamentos.obter(Integer.valueOf(tfId.getText()));
+                if (acompanhamentos != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfNome.setText(acompanhamentos.getNomeaconpanhamento());
+                    tffornecedor.setText(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
+                            + " --> " + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
+                    tfNome.setEditable(false);
+                    tffornecedor.setEditable(false);
+
+                    botaosalvar.setVisible(false);
+
+                    cbFornecedor.setEnabled(false);
+
+                    cbFornecedor.setSelectedItem(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
+                            + "-" + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
+
+                } else {
+                    cbFornecedor.setEnabled(false);
+                    tfNome.setText("");
+                    tffornecedor.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfNome.setEditable(false);
+                    tffornecedor.setEditable(false);
+
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+                    botaobuscar.setOpaque(false);
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 cbFornecedor.setEnabled(false);
                 tfNome.setText("");
                 tffornecedor.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfNome.setEditable(false);
                 tffornecedor.setEditable(false);
-                
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-                
             }
+
         });
 
         botaoadicionar.addActionListener((ActionEvent ae) -> {
@@ -235,12 +254,12 @@ public class AcompanhamentosGUI extends JDialog {
 
         botaosalvar.addActionListener((ActionEvent ae) -> {
             try {
-                
+
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
                 botaocancelar.setVisible(false);
                 botaolistar.setVisible(true);
-                
+
                 if (acao.equals("adicionar")) {
                     acompanhamentos = new Acompanhamentos();
                     Integer id = Integer.valueOf(tfId.getText());
@@ -264,11 +283,11 @@ public class AcompanhamentosGUI extends JDialog {
                 tfId.setText("");
                 tfNome.setText("");
                 tffornecedor.setText("");
-                
+
                 tfNome.setEditable(false);
                 cbFornecedor.setEnabled(false);
                 tffornecedor.setEditable(false);
-                
+
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
@@ -293,7 +312,7 @@ public class AcompanhamentosGUI extends JDialog {
             tffornecedor.setEditable(true);
             cbFornecedor.setEnabled(true);
             tfNome.requestFocus();
-            
+
             botaosalvar.setVisible(true);
             botaocancelar.setVisible(true);
             acao = "alterar";
@@ -310,16 +329,16 @@ public class AcompanhamentosGUI extends JDialog {
             tfNome.setText("");
             tffornecedor.setText("");
             cbFornecedor.setEnabled(false);
-            
+
             tfNome.setEditable(false);
             tffornecedor.setEditable(false);
-            
+
             botaobuscar.setVisible(true);
             if (resposta == JOptionPane.YES_OPTION) {
                 daoAcompanhamentos.remover(acompanhamentos);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
-                
+
             }
         });
 
@@ -345,13 +364,13 @@ public class AcompanhamentosGUI extends JDialog {
             tfId.requestFocus();
             tfId.setText("");
             tfNome.setText("");
-           
+
             tffornecedor.setText("");
-            
+
             tfNome.setEditable(false);
             tffornecedor.setEditable(false);
             cbFornecedor.setEnabled(false);
-            
+
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);

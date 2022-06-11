@@ -161,7 +161,7 @@ public class IngredientesGUI extends JDialog {
         // painel sul
         cardLayout = new CardLayout();
         painelsul.setLayout(cardLayout);
-        
+
         // borda paineis
         painelsul.setBorder(BorderFactory.createLineBorder(Color.black));
         painelcentro.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -185,34 +185,49 @@ public class IngredientesGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            acompanhamentos = daoIngredientes.obter(Integer.valueOf(tfId.getText()));
-            if (acompanhamentos != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfNome.setText(acompanhamentos.getNome());
-                tffornecedor.setText(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
-                        + " --> " + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
-                tfNome.setEditable(false);
-                tffornecedor.setEditable(false);
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                acompanhamentos = daoIngredientes.obter(Integer.valueOf(tfId.getText()));
+                if (acompanhamentos != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfNome.setText(acompanhamentos.getNome());
+                    tffornecedor.setText(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
+                            + " --> " + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
+                    tfNome.setEditable(false);
+                    tffornecedor.setEditable(false);
 
-                botaosalvar.setVisible(false);
+                    botaosalvar.setVisible(false);
 
-                cbFornecedor.setEnabled(false);
+                    cbFornecedor.setEnabled(false);
 
-                cbFornecedor.setSelectedItem(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
-                        + "-" + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
+                    cbFornecedor.setSelectedItem(acompanhamentos.getFornecedoridfornecedor().getIdfornecedor()
+                            + "-" + acompanhamentos.getFornecedoridfornecedor().getNomefornecedor());
 
-            } else {
+                } else {
+                    cbFornecedor.setEnabled(false);
+                    tfNome.setText("");
+                    tffornecedor.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfNome.setEditable(false);
+                    tffornecedor.setEditable(false);
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 cbFornecedor.setEnabled(false);
                 tfNome.setText("");
                 tffornecedor.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfNome.setEditable(false);
                 tffornecedor.setEditable(false);
-
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);

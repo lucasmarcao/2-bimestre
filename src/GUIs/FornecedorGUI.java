@@ -1,9 +1,7 @@
 package GUIs;
 
 import DAOs.DAOFornecedor;
-import DAOs.DAOPessoa;
 import Entidades.Fornecedor;
-import Entidades.Pessoa;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -12,7 +10,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.swing.BorderFactory;
@@ -25,12 +22,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
+import javax.swing.text.MaskFormatter;
 
 public class FornecedorGUI extends JDialog {
 
@@ -61,7 +58,8 @@ public class FornecedorGUI extends JDialog {
     JLabel lbInicioDaParceria = new JLabel("INICIO DA PARCERIA", JLabel.CENTER);
     JTextField tfInicioDaParceria = new JTextField(30);
     JLabel lbPorteDaEmpresa = new JLabel("PORTE DA EMPRESA", JLabel.CENTER);
-    JTextField tfPorteDaEmpresa = new JTextField(30);
+    DefaultComboBoxModel cbm = new DefaultComboBoxModel();
+    JComboBox cbPorteEmpresa = new JComboBox(cbm);
 
     String acao = "";
 
@@ -83,10 +81,26 @@ public class FornecedorGUI extends JDialog {
     Fornecedor fornecedor = new Fornecedor();
 
     public FornecedorGUI() {
+        try {
+            this.tfInicioDaParceria = new JFormattedTextField(new MaskFormatter("##/##/####"));
+        } catch (ParseException ex) {
+            System.out.println("fudeu o parse" + ex);
+        }
         dialogo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         cp = dialogo.getContentPane();
         cp.setLayout(new BorderLayout());
         dialogo.setTitle(" Fornecedor - CRUD");
+
+        // combo add
+        cbm.addElement("Pequena Empresa");
+        cbm.addElement("Média Empresa");
+        cbm.addElement("Grande Empresa");
+        cbm.addElement("Multinacional");
+        cbPorteEmpresa.setBorder(BorderFactory.createLineBorder(Color.black));
+        cbPorteEmpresa.setFont(new Font("Impact", Font.PLAIN, 22));
+        cbPorteEmpresa.setForeground(new Color(0, 96, 55));
+        cbPorteEmpresa.setBackground(Color.ORANGE);
+        cbPorteEmpresa.setEnabled(false);
 
         cp.add(painelnorte, BorderLayout.NORTH);
         cp.add(painelcentro, BorderLayout.CENTER);
@@ -118,11 +132,8 @@ public class FornecedorGUI extends JDialog {
         botaocancelar.setVisible(false);
         botaoexcluir.setVisible(false);
         // cor dos botoes
-
         lbId.setFont(new Font("Arial", Font.BOLD, 16));
         tfId.setFont(new Font("Arial", Font.BOLD, 16));
-        tfPorteDaEmpresa.setFont(new Font("Arial", Font.BOLD, 16));
-
         botaobuscar.setBackground(Color.GREEN);
         botaoadicionar.setBackground(Color.WHITE);
         botaosalvar.setBackground(Color.cyan);
@@ -131,7 +142,6 @@ public class FornecedorGUI extends JDialog {
         botaocancelar.setBackground(Color.red);
         botaolistar.setBackground(Color.LIGHT_GRAY);
         tfId.setBorder(BorderFactory.createLineBorder(Color.black));
-
         // painel centro
         painelcentro.setLayout(new GridLayout(3, 2));
         painelcentro.add(lbNomeFornecedor);
@@ -139,10 +149,10 @@ public class FornecedorGUI extends JDialog {
         painelcentro.add(lbInicioDaParceria);
         painelcentro.add(tfInicioDaParceria);
         painelcentro.add(lbPorteDaEmpresa);
-        painelcentro.add(tfPorteDaEmpresa);
+        painelcentro.add(cbPorteEmpresa);
 
         tfNomeFornecedor.setEditable(false);
-        tfPorteDaEmpresa.setEditable(false);
+        cbPorteEmpresa.setEnabled(false);
         tfInicioDaParceria.setEditable(false);
 
         lbId.setFont(new Font("Arial", Font.BOLD, 16));
@@ -182,48 +192,55 @@ public class FornecedorGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            fornecedor = daoFornecedor.obter(Integer.valueOf(tfId.getText()));
-            if (fornecedor != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfNomeFornecedor.setText(String.valueOf(fornecedor.getNomefornecedor()));
-                tfInicioDaParceria.setText(simpleDateFormat.format(fornecedor.getInicioDaParceria()));
-                tfPorteDaEmpresa.setText(String.valueOf(fornecedor.getPorteDaEmpresa()));
-                tfNomeFornecedor.setEditable(false);
-                tfPorteDaEmpresa.setEditable(false);
-                tfInicioDaParceria.setEditable(false);
-
-                botaosalvar.setVisible(false);
-
-                tfPorteDaEmpresa.setEnabled(false);
-
-            } else {
-                tfPorteDaEmpresa.setEnabled(false);
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                fornecedor = daoFornecedor.obter(Integer.valueOf(tfId.getText()));
+                if (fornecedor != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfNomeFornecedor.setText(String.valueOf(fornecedor.getNomefornecedor()));
+                    tfInicioDaParceria.setText(simpleDateFormat.format(fornecedor.getInicioDaParceria()));
+                    cbPorteEmpresa.setSelectedItem(fornecedor.getPorteDaEmpresa());
+                    tfNomeFornecedor.setEditable(false);
+                    cbPorteEmpresa.setEnabled(false);
+                    tfInicioDaParceria.setEditable(false);
+                    botaosalvar.setVisible(false);
+                } else {
+                    tfNomeFornecedor.setText("");
+                    tfInicioDaParceria.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfNomeFornecedor.setEditable(false);
+                    cbPorteEmpresa.setEnabled(false);
+                    tfInicioDaParceria.setEditable(false);
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 tfNomeFornecedor.setText("");
                 tfInicioDaParceria.setText("");
-                tfPorteDaEmpresa.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfNomeFornecedor.setEditable(false);
-                tfPorteDaEmpresa.setEditable(false);
+                cbPorteEmpresa.setEnabled(false);
                 tfInicioDaParceria.setEditable(false);
-
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-
             }
         });
 
         botaoadicionar.addActionListener((ActionEvent ae) -> {
             tfId.setEditable(false);
             tfNomeFornecedor.setEditable(true);
-            tfPorteDaEmpresa.setEditable(true);
+            cbPorteEmpresa.setEnabled(true);
             tfInicioDaParceria.setEditable(true);
             tfNomeFornecedor.requestFocus();
-            tfPorteDaEmpresa.setEnabled(true);
             botaoadicionar.setVisible(false);
             botaosalvar.setVisible(true);
             botaobuscar.setVisible(false);
@@ -234,16 +251,13 @@ public class FornecedorGUI extends JDialog {
 
         botaosalvar.addActionListener((ActionEvent ae) -> {
             try {
-
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
                 botaocancelar.setVisible(false);
                 botaolistar.setVisible(true);
-
                 if (acao.equals("adicionar")) {
                     fornecedor = new Fornecedor();
                     Integer id = Integer.valueOf(tfId.getText());
-
                     fornecedor.setIdfornecedor(id);
                     fornecedor.setNomefornecedor(tfNomeFornecedor.getText());
                     try {
@@ -251,11 +265,10 @@ public class FornecedorGUI extends JDialog {
                     } catch (ParseException ex) {
                         System.out.println("deu bosta na data");
                     }
-                    fornecedor.setPorteDaEmpresa(tfPorteDaEmpresa.getText());
+                    fornecedor.setPorteDaEmpresa(String.valueOf(cbPorteEmpresa.getSelectedItem()));
                     daoFornecedor.inserir(fornecedor);
                 } else {
                     Integer id = Integer.valueOf(tfId.getText());
-
                     fornecedor.setIdfornecedor(id);
                     fornecedor.setNomefornecedor(tfNomeFornecedor.getText());
                     try {
@@ -263,23 +276,18 @@ public class FornecedorGUI extends JDialog {
                     } catch (ParseException ex) {
                         System.out.println("deu bosta na data");
                     }
-                    fornecedor.setPorteDaEmpresa(tfPorteDaEmpresa.getText());
+                    fornecedor.setPorteDaEmpresa(String.valueOf(cbPorteEmpresa.getSelectedItem()));
                     daoFornecedor.atualizar(fornecedor);
                 }
-
                 botaosalvar.setVisible(false);
                 tfId.setEditable(true);
                 tfId.requestFocus();
                 tfId.setText("");
                 tfNomeFornecedor.setText("");
                 tfInicioDaParceria.setText("");
-                tfPorteDaEmpresa.setText("");
-
                 tfNomeFornecedor.setEditable(false);
-                tfPorteDaEmpresa.setEditable(false);
-                tfPorteDaEmpresa.setEnabled(false);
+                cbPorteEmpresa.setEnabled(false);
                 tfInicioDaParceria.setEditable(false);
-
                 botaobuscar.setVisible(true);
             } catch (NumberFormatException errou) {
                 System.out.println("deu bosta ao salvar");
@@ -287,11 +295,9 @@ public class FornecedorGUI extends JDialog {
                 tfNomeFornecedor.requestFocus();
                 tfNomeFornecedor.setText("");
                 tfInicioDaParceria.setText("");
-                tfPorteDaEmpresa.setText("");
-                tfPorteDaEmpresa.setEnabled(true);
+                cbPorteEmpresa.setEnabled(true);
                 botaocancelar.setVisible(true);
                 tfNomeFornecedor.setEditable(true);
-                tfPorteDaEmpresa.setEditable(true);
                 tfInicioDaParceria.setEditable(true);
             }
         });
@@ -303,11 +309,9 @@ public class FornecedorGUI extends JDialog {
             botaoalterar.setVisible(false);
             tfId.setEditable(false);
             tfNomeFornecedor.setEditable(true);
-            tfPorteDaEmpresa.setEditable(true);
+            cbPorteEmpresa.setEnabled(true);
             tfInicioDaParceria.setEditable(true);
-            tfPorteDaEmpresa.setEnabled(true);
             tfNomeFornecedor.requestFocus();
-
             botaosalvar.setVisible(true);
             botaocancelar.setVisible(true);
             acao = "alterar";
@@ -323,19 +327,14 @@ public class FornecedorGUI extends JDialog {
             tfId.setText("");
             tfNomeFornecedor.setText("");
             tfInicioDaParceria.setText("");
-            tfPorteDaEmpresa.setText("");
-            tfPorteDaEmpresa.setEnabled(false);
-
             tfNomeFornecedor.setEditable(false);
-            tfPorteDaEmpresa.setEditable(false);
+            cbPorteEmpresa.setEnabled(false);
             tfInicioDaParceria.setEditable(false);
-
             botaobuscar.setVisible(true);
             if (resposta == JOptionPane.YES_OPTION) {
                 daoFornecedor.remover(fornecedor);
             } else {
                 System.out.println(" OS DADOS DO ATLETA NÃO FORAM APAGADOS.");
-
             }
         });
 
@@ -361,19 +360,14 @@ public class FornecedorGUI extends JDialog {
             tfId.requestFocus();
             tfId.setText("");
             tfNomeFornecedor.setText("");
-            tfPorteDaEmpresa.setEnabled(false);
             tfInicioDaParceria.setText("");
-            tfPorteDaEmpresa.setText("");
-
             tfNomeFornecedor.setEditable(false);
-            tfPorteDaEmpresa.setEditable(false);
+            cbPorteEmpresa.setEnabled(false);
             tfInicioDaParceria.setEditable(false);
-
             botaobuscar.setVisible(true);
             botaolistar.setVisible(true);
             botaosalvar.setVisible(false);
         });
-
         // finaliza o gui
         dialogo.setModal(true);
         dialogo.setSize(900, 600);

@@ -24,8 +24,12 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import java.awt.GridLayout;
 import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
+import javax.swing.text.MaskFormatter;
 import tools.UsarGridBagLayout;
 
 public class PessoaGUI extends JDialog {
@@ -85,6 +89,13 @@ public class PessoaGUI extends JDialog {
     UsarGridBagLayout usarGridBagLayout = new UsarGridBagLayout(painelcentro);
 
     public PessoaGUI() {
+        try {
+            this.tfCpf = new JFormattedTextField(new MaskFormatter("###.###.###-##"));
+            this.tfCep = new JFormattedTextField(new MaskFormatter("#####-##"));
+            this.tfDataNascimento = new JFormattedTextField(new MaskFormatter("##/##/####"));
+        } catch (ParseException ex) {
+            System.out.println("fudeu o parse" + ex);
+        }
         dialogo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         cp = dialogo.getContentPane();
         cp.setLayout(new BorderLayout());
@@ -152,6 +163,9 @@ public class PessoaGUI extends JDialog {
         lbAltura.setFont(new Font("Arial", Font.BOLD, 18));
         tfAltura.setFont(new Font("Arial", Font.BOLD, 18));
         lbCpf.setFont(new Font("Arial", Font.BOLD, 18));
+        tfCep.setFont(new Font("Arial", Font.BOLD, 18));
+        tfnome.setFont(new Font("Arial", Font.BOLD, 18));
+        tfCpf.setFont(new Font("Arial", Font.BOLD, 18));
         lbCep.setFont(new Font("Arial", Font.BOLD, 18));
         lbnome.setFont(new Font("Arial", Font.BOLD, 18));
 
@@ -188,31 +202,54 @@ public class PessoaGUI extends JDialog {
 
         // funcionalidade dos botoes.
         botaobuscar.addActionListener((ActionEvent ae) -> {
-            cardLayout.show(painelsul, "avisos");
-            chavePrimaria = tfId.getText();
-            pessoa = daoPessoa.obter(Integer.valueOf(tfId.getText()));
-            if (pessoa != null) {
-                botaoalterar.setVisible(true);
-                botaoexcluir.setVisible(true);
-                botaoadicionar.setVisible(false);
-                tfnome.setText(pessoa.getNome());
-                tfCep.setText(pessoa.getCep());
-                tfCpf.setText(pessoa.getCpf());
-                tfDataNascimento.setText(simpleDateFormat.format(pessoa.getDatanascimento()));
-                tfAltura.setText(String.valueOf(pessoa.getAltura()));
-                tfDataNascimento.setEditable(false);
-                tfAltura.setEditable(false);
+            try {
+                cardLayout.show(painelsul, "avisos");
+                chavePrimaria = tfId.getText();
+                pessoa = daoPessoa.obter(Integer.valueOf(tfId.getText()));
+                if (pessoa != null) {
+                    botaoalterar.setVisible(true);
+                    botaoexcluir.setVisible(true);
+                    botaoadicionar.setVisible(false);
+                    tfnome.setText(pessoa.getNome());
+                    tfCep.setText(pessoa.getCep());
+                    tfCpf.setText(pessoa.getCpf());
+                    tfDataNascimento.setText(simpleDateFormat.format(pessoa.getDatanascimento()));
+                    tfAltura.setText(String.valueOf(pessoa.getAltura()));
+                    tfDataNascimento.setEditable(false);
+                    tfAltura.setEditable(false);
 
-                botaosalvar.setVisible(false);
+                    botaosalvar.setVisible(false);
 
-            } else {
+                } else {
 
+                    tfDataNascimento.setText("");
+                    tfAltura.setText("");
+                    tfnome.setText("");
+                    tfCep.setText("");
+                    tfCpf.setText("");
+                    botaoadicionar.setVisible(true);
+                    tfDataNascimento.setEditable(false);
+                    tfAltura.setEditable(false);
+                    tfnome.setEditable(false);
+                    tfCep.setEditable(false);
+                    tfCpf.setEditable(false);
+
+                    botaosalvar.setVisible(false);
+                    botaoalterar.setVisible(false);
+                    botaoexcluir.setVisible(false);
+
+                }
+            } catch (Exception e) {
+                System.out.println("deu bosta ao salvar");
+                tfId.setText("");
+                tfId.requestFocus();
+                JOptionPane.showMessageDialog(null, "voce pesquisou algo estranho", "erro no buscamento", JOptionPane.PLAIN_MESSAGE);
                 tfDataNascimento.setText("");
                 tfAltura.setText("");
                 tfnome.setText("");
                 tfCep.setText("");
                 tfCpf.setText("");
-                botaoadicionar.setVisible(true);
+                botaoadicionar.setVisible(false);
                 tfDataNascimento.setEditable(false);
                 tfAltura.setEditable(false);
                 tfnome.setEditable(false);
@@ -222,7 +259,6 @@ public class PessoaGUI extends JDialog {
                 botaosalvar.setVisible(false);
                 botaoalterar.setVisible(false);
                 botaoexcluir.setVisible(false);
-
             }
         });
 
